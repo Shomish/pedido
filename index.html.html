@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hacer Pedido · Mi Negocio Digital</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--primary:#6C3FC5;--primary-light:#8B5CF6;--green:#10B981;--yellow:#F59E0B;--bg:#F5F3FF;--text:#1E1B4B;--muted:#6B7280;--border:#E5E7EB;--radius:18px;--shadow:0 4px 24px rgba(108,63,197,0.10);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:140px;}
+
+    /* HERO */
+    .hero{position:relative;height:270px;overflow:hidden;}
+    .hero img{width:100%;height:100%;object-fit:cover;object-position:center 45%;}
+    .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(108,63,197,0.45) 0%,rgba(30,27,75,0.93) 100%);}
+    .hero-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px 20px 36px;text-align:center;align-items:center;}
+    .negocio-icon{width:72px;height:72px;background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.35);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:12px;backdrop-filter:blur(8px);}
+    .negocio-nombre{font-size:22px;font-weight:800;color:white;margin-bottom:6px;}
+    .negocio-tipo{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 14px;font-size:11px;color:white;backdrop-filter:blur(4px);}
+
+    /* MAIN */
+    .main{padding:0 16px;margin-top:-24px;position:relative;z-index:10;}
+    .card-box{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;}
+    .card-title{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,#FAFAFA,#F5F3FF);}
+    .card-title h6{font-size:14px;font-weight:700;margin:0;flex:1;}
+    .card-title span{font-size:11px;color:var(--muted);}
+
+    /* INPUT */
+    .inp{border:2px solid var(--border);border-radius:12px;padding:12px 14px;font-size:14px;font-family:'Poppins',sans-serif;width:100%;background:white;transition:all 0.2s;color:var(--text);}
+    .inp:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(108,63,197,0.1);}
+
+    /* LOADING */
+    .loading-box{padding:40px 20px;text-align:center;color:var(--muted);}
+    .loading-spinner{width:48px;height:48px;border:4px solid #EDE9FE;border-top-color:var(--primary);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .loading-box p{font-size:13px;line-height:1.7;}
+
+    /* FILTRO CATEGORÍAS */
+    .cats-filter{display:flex;gap:8px;overflow-x:auto;padding:12px 18px 0;scrollbar-width:none;}
+    .cats-filter::-webkit-scrollbar{display:none;}
+    .cat-chip{background:#F5F3FF;border:2px solid transparent;border-radius:20px;padding:5px 14px;font-size:11px;font-weight:600;color:var(--primary);cursor:pointer;white-space:nowrap;transition:all 0.2s;font-family:'Poppins',sans-serif;flex-shrink:0;}
+    .cat-chip:hover{border-color:var(--primary);}
+    .cat-chip.active{background:var(--primary);color:white;}
+
+    /* PRODUCTOS */
+    .prod-item{padding:14px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f9f9f9;transition:background 0.15s;}
+    .prod-item:last-child{border-bottom:none;}
+    .prod-item.selected{background:#F5F3FF;}
+    .prod-emoji{width:46px;height:46px;background:var(--bg);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+    .prod-info{flex:1;min-width:0;}
+    .prod-nombre{font-size:13px;font-weight:600;}
+    .prod-precio{font-size:13px;color:var(--primary);font-weight:700;margin-top:2px;}
+    .qty-control{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+    .qty-btn{width:32px;height:32px;border:2px solid var(--border);border-radius:9px;background:white;color:var(--text);font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;line-height:1;font-family:'Poppins',sans-serif;}
+    .qty-btn:hover{border-color:var(--primary);color:var(--primary);}
+    .qty-btn.plus{border-color:var(--primary);background:var(--primary);color:white;}
+    .qty-btn.plus:hover{background:var(--primary-light);}
+    .qty-num{font-size:15px;font-weight:800;min-width:22px;text-align:center;}
+
+    /* MÉTODOS DE PAGO */
+    .pago-opcion{padding:14px 18px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #f9f9f9;cursor:pointer;transition:background 0.15s;}
+    .pago-opcion:last-child{border-bottom:none;}
+    .pago-opcion:hover{background:#FAFAFA;}
+    .pago-opcion.selected{background:#F5F3FF;}
+    .pago-icono{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+    .pago-datos{flex:1;}
+    .pago-nombre{font-size:13px;font-weight:700;}
+    .pago-detalle{font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace;letter-spacing:.3px;}
+    .pago-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+    .pago-opcion.selected .pago-check{background:var(--primary);border-color:var(--primary);color:white;}
+
+    /* CARRITO FLOTANTE */
+    .carrito-bar{position:fixed;bottom:0;left:0;right:0;background:white;border-top:2px solid #EDE9FE;padding:14px 16px 24px;z-index:1000;box-shadow:0 -8px 30px rgba(108,63,197,0.15);display:none;border-radius:22px 22px 0 0;}
+    .carrito-bar.show{display:block;}
+    .carrito-resumen{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .carrito-items-txt{font-size:12px;color:var(--muted);}
+    .carrito-total-txt{font-size:24px;font-weight:800;color:var(--primary);}
+    .btn-confirmar{width:100%;padding:16px;background:linear-gradient(135deg,var(--primary),var(--primary-light));border:none;border-radius:16px;color:white;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 20px rgba(108,63,197,0.35);transition:all 0.2s;}
+    .btn-confirmar:hover{transform:translateY(-1px);}
+
+    /* PASO 2 — CONFIRMACIÓN */
+    .confirm-hero{background:linear-gradient(135deg,var(--primary),var(--primary-light));padding:32px 20px;text-align:center;border-radius:var(--radius);margin-bottom:14px;position:relative;overflow:hidden;}
+    .confirm-hero::before{content:'🏔️';position:absolute;right:-10px;top:-10px;font-size:90px;opacity:.1;}
+    .confirm-hero::after{content:'✨';position:absolute;left:10px;bottom:10px;font-size:50px;opacity:.1;}
+    .confirm-icon{width:82px;height:82px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 14px;border:2px solid rgba(255,255,255,0.35);}
+    .confirm-title{font-size:22px;font-weight:800;color:white;margin-bottom:6px;}
+    .confirm-sub{font-size:13px;color:rgba(255,255,255,0.85);line-height:1.7;}
+
+    /* RESUMEN */
+    .resumen-item{padding:12px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #f9f9f9;font-size:13px;}
+    .resumen-item:last-child{border-bottom:none;}
+    .resumen-item-left{display:flex;align-items:center;gap:8px;}
+    .resumen-item-emoji{width:32px;height:32px;background:var(--bg);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+    .resumen-item-nombre{font-weight:600;}
+    .resumen-item-qty{font-size:11px;color:var(--muted);}
+    .resumen-item-precio{font-weight:700;color:var(--primary);flex-shrink:0;}
+    .resumen-total{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#F5F3FF,#EDE9FE);}
+    .resumen-total-lbl{font-size:14px;font-weight:700;}
+    .resumen-total-val{font-size:24px;font-weight:800;color:var(--primary);}
+
+    /* DATOS PAGO */
+    .datos-pago-box{padding:16px 18px;background:#F9FAFB;border-top:1px solid var(--border);}
+    .datos-pago-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .datos-pago-val{font-size:13px;color:var(--text);line-height:2.2;}
+
+    /* BOTONES */
+    .btn-wsp{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:linear-gradient(135deg,#25D366,#128C7E);border:none;border-radius:16px;color:white;font-size:15px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;box-shadow:0 4px 20px rgba(37,211,102,0.35);transition:all 0.2s;}
+    .btn-wsp:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,211,102,0.45);}
+    .btn-nuevo{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;background:#F5F3FF;border:2px solid #DDD6FE;border-radius:14px;color:var(--primary);font-size:14px;font-weight:700;font-family:'Poppins',sans-serif;cursor:pointer;margin-top:10px;transition:all 0.2s;}
+    .btn-nuevo:hover{background:#EDE9FE;}
+
+    /* EMPTY */
+    .empty-prods{padding:40px 20px;text-align:center;color:var(--muted);}
+    .empty-prods i{font-size:52px;opacity:.15;display:block;margin-bottom:14px;}
+    .empty-prods p{font-size:13px;line-height:1.7;}
+
+    /* FOOTER */
+    .footer-brand{text-align:center;padding:24px 20px;font-size:11px;color:var(--muted);}
+    .footer-brand strong{color:var(--primary);}
+
+    @media(min-width:768px){
+      .main{max-width:560px;margin-left:auto;margin-right:auto;padding:0 20px;margin-top:-24px;}
+      .carrito-bar{max-width:560px;left:50%;transform:translateX(-50%);border-radius:22px 22px 0 0;}
+      .hero{height:320px;}
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <img src="https://images.unsplash.com/photo-1604999565976-8913ad2ddb7c?w=1200&q=80" alt="Mercado Cusco"/>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="negocio-icon">🛒</div>
+      <div class="negocio-nombre" id="hdNombre">Mi Negocio Digital</div>
+      <div class="negocio-tipo">🏔️ Minimarket · Cusco, Perú</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ══════════ PASO 1 ══════════ -->
+    <div id="paso1">
+
+      <!-- NOMBRE CLIENTE -->
+      <div class="card-box">
+        <div class="card-title">
+          <i class="bi bi-person-fill" style="color:var(--primary)"></i>
+          <h6>¿Cómo te llamas?</h6>
+        </div>
+        <div style="padding:14px 18px;">
+          <input type="text" id="nombreCliente" class="inp"
+                 placeholder="Tu nombre (opcional)" autocomplete="off"/>
+        </div>
+      </div>
+
+      <!-- PRODUCTOS -->
+      <div class="card-box">
+        <div class="card-title">
+          <i class="bi bi-bag-fill" style="color:var(--primary)"></i>
+          <h6>Elige tus productos</h6>
+          <span id="contadorItems">0 seleccionados</span>
+        </div>
+        <div class="cats-filter" id="catsFilter" style="display:none;"></div>
+        <div id="listaProductos">
+          <div class="loading-box">
+            <div class="loading-spinner"></div>
+            <p>Cargando productos<br><strong style="color:var(--primary)">desde la nube ☁️</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MÉTODO DE PAGO -->
+      <div class="card-box">
+        <div class="card-title">
+          <i class="bi bi-credit-card-fill" style="color:var(--primary)"></i>
+          <h6>Método de pago</h6>
+        </div>
+
+        <div class="pago-opcion selected"
+             onclick="selPago(this,'Yape','Yape · 985392177 — Steven Junior')">
+          <div class="pago-icono" style="background:#EDE9FE">💜</div>
+          <div class="pago-datos">
+            <div class="pago-nombre">Yape</div>
+            <div class="pago-detalle">985392177 — Steven Junior</div>
+          </div>
+          <div class="pago-check"><i class="bi bi-check" style="font-size:14px"></i></div>
+        </div>
+
+        <div class="pago-opcion"
+             onclick="selPago(this,'Depósito BCP','CCI: 00228510384886801058 — Steven Junior')">
+          <div class="pago-icono" style="background:#DBEAFE">🏦</div>
+          <div class="pago-datos">
+            <div class="pago-nombre">Depósito BCP</div>
+            <div class="pago-detalle">CCI: 00228510384886801058</div>
+          </div>
+          <div class="pago-check"><i class="bi bi-check" style="font-size:14px"></i></div>
+        </div>
+
+        <div class="pago-opcion"
+             onclick="selPago(this,'Transferencia BCP','N° Cuenta: 28503848868010 — Steven Junior')">
+          <div class="pago-icono" style="background:#D1FAE5">💳</div>
+          <div class="pago-datos">
+            <div class="pago-nombre">Transferencia BCP</div>
+            <div class="pago-detalle">N° Cuenta: 28503848868010</div>
+          </div>
+          <div class="pago-check"><i class="bi bi-check" style="font-size:14px"></i></div>
+        </div>
+
+        <div class="pago-opcion"
+             onclick="selPago(this,'Efectivo','Pago en efectivo al recibir el pedido')">
+          <div class="pago-icono" style="background:#FEF3C7">💵</div>
+          <div class="pago-datos">
+            <div class="pago-nombre">Efectivo</div>
+            <div class="pago-detalle">Pago al recibir el pedido</div>
+          </div>
+          <div class="pago-check"><i class="bi bi-check" style="font-size:14px"></i></div>
+        </div>
+      </div>
+
+    </div><!-- /paso1 -->
+
+    <!-- ══════════ PASO 2 ══════════ -->
+    <div id="paso2" style="display:none;">
+
+      <div class="confirm-hero">
+        <div class="confirm-icon">✅</div>
+        <div class="confirm-title">¡Pedido listo!</div>
+        <div class="confirm-sub">
+          Tu pedido fue preparado correctamente.<br>
+          Toca el botón para enviarlo por WhatsApp<br>
+          y coordinar el pago con el vendedor.
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-title">
+          <i class="bi bi-receipt" style="color:var(--primary)"></i>
+          <h6>Resumen de tu pedido</h6>
+        </div>
+
+        <div id="resumenPedido"></div>
+
+        <div class="resumen-total">
+          <span class="resumen-total-lbl">Total a pagar</span>
+          <span class="resumen-total-val" id="resumenTotal">S/ 0.00</span>
+        </div>
+
+        <div class="datos-pago-box">
+          <div class="datos-pago-lbl">
+            <i class="bi bi-info-circle"></i> Datos para el pago
+          </div>
+          <div class="datos-pago-val" id="datosPagoResumen"></div>
+        </div>
+
+        <div style="padding:16px 18px;">
+          <button type="button" class="btn-wsp" id="btnEnviarWsp">
+            <i class="bi bi-whatsapp" style="font-size:22px"></i>
+            Enviar pedido por WhatsApp
+          </button>
+          <button type="button" class="btn-nuevo" onclick="nuevoPedido()">
+            <i class="bi bi-arrow-repeat"></i> Hacer otro pedido
+          </button>
+        </div>
+      </div>
+
+    </div><!-- /paso2 -->
+
+    <div class="footer-brand">
+      Powered by <strong>Mi Negocio Digital</strong> 🏔️ Cusco, Perú
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- CARRITO FLOTANTE -->
+  <div class="carrito-bar" id="carritoBar">
+    <div class="carrito-resumen">
+      <div>
+        <div class="carrito-items-txt" id="carritoItemsTxt">0 productos</div>
+        <div class="carrito-total-txt" id="carritoTotalTxt">S/ 0.00</div>
+      </div>
+      <div style="text-align:right;">
+        <i class="bi bi-bag-check-fill" style="font-size:30px;color:var(--primary);display:block;"></i>
+        <span style="font-size:10px;color:var(--muted);">Mi carrito</span>
+      </div>
+    </div>
+    <button type="button" class="btn-confirmar" id="btnConfirmar">
+      <i class="bi bi-send-fill"></i> Confirmar pedido
+    </button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // ── CONFIG NUBE ────────────────────────────────────────────
+    var CLOUD = {
+      BIN_ID  : '6a3df3e5f5f4af5e293246cb',
+      API_KEY : '$2a$10$hrVwkRbkSfIQcswc1B72fO8t.bypCDGptdRihbmil2n8OPOpvlWwi',
+      BASE_URL: 'https://api.jsonbin.io/v3/b'
+    };
+
+    // ── DATOS DEL NEGOCIO ──────────────────────────────────────
+    var NEGOCIO = {
+      nombre  : 'Mi Negocio Digital',
+      titular : 'Steven Junior Huillca Cusi',
+      yape    : '985392177',
+      cuenta  : '28503848868010',
+      cci     : '00228510384886801058',
+      wsp     : '51985392177'
+    };
+
+    var carrito      = {};
+    var todosProds   = [];
+    var catActual    = '';
+    var pagoActual   = {
+      nombre : 'Yape',
+      detalle: 'Yape · 985392177 — Steven Junior'
+    };
+
+    // ── INIT ───────────────────────────────────────────────────
+    document.getElementById('btnConfirmar').addEventListener('click', confirmarPedido);
+    document.getElementById('btnEnviarWsp').addEventListener('click', enviarWhatsApp);
+    cargarProductosNube();
+
+    // ── CARGAR PRODUCTOS DESDE LA NUBE ─────────────────────────
+    function cargarProductosNube(){
+      fetch(CLOUD.BASE_URL + '/' + CLOUD.BIN_ID + '/latest', {
+        method : 'GET',
+        headers: {
+          'X-Master-Key': CLOUD.API_KEY,
+          'X-Bin-Meta'  : 'false'
+        }
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        var prods = (data && data.productos) ? data.productos : [];
+        todosProds = prods;
+        renderCats(prods);
+        renderProductos(prods);
+      })
+      .catch(function(){
+        // Fallback a caché local
+        var prods = JSON.parse(localStorage.getItem('mnd_productos') || '[]');
+        todosProds = prods;
+        renderCats(prods);
+        renderProductos(prods);
+      });
+    }
+
+    // ── RENDER CATEGORÍAS ──────────────────────────────────────
+    function renderCats(prods){
+      if(prods.length === 0) return;
+      var cats = prods
+        .map(function(p){ return p.categoria || 'General'; })
+        .filter(function(v, i, a){ return a.indexOf(v) === i; });
+
+      if(cats.length <= 1){ return; } // No mostrar si solo hay 1 categoría
+
+      var filtro = document.getElementById('catsFilter');
+      filtro.style.display = 'flex';
+      filtro.innerHTML =
+        '<button class="cat-chip active" onclick="filtrarCat(this,\'\')">Todos</button>' +
+        cats.map(function(c){
+          return '<button class="cat-chip" onclick="filtrarCat(this,\'' + c + '\')">' + c + '</button>';
+        }).join('') +
+        '<div style="height:10px;width:1px;flex-shrink:0;"></div>';
+    }
+
+    // ── FILTRAR CATEGORÍA ──────────────────────────────────────
+    function filtrarCat(el, cat){
+      document.querySelectorAll('.cat-chip').forEach(function(b){ b.classList.remove('active'); });
+      el.classList.add('active');
+      catActual = cat;
+      var filtrados = cat
+        ? todosProds.filter(function(p){ return (p.categoria||'General') === cat; })
+        : todosProds;
+      renderProductos(filtrados);
+    }
+
+    // ── RENDER PRODUCTOS ───────────────────────────────────────
+    function renderProductos(prods){
+      var cont = document.getElementById('listaProductos');
+      if(prods.length === 0){
+        cont.innerHTML =
+          '<div class="empty-prods">' +
+            '<i class="bi bi-box-seam"></i>' +
+            '<p>El vendedor aún no cargó productos.<br>' +
+            '<strong style="color:var(--primary)">Contáctalo por WhatsApp 📲</strong></p>' +
+          '</div>';
+        return;
+      }
+      cont.innerHTML = prods.map(function(p){
+        var qty = carrito[p.id] ? carrito[p.id].qty : 0;
+        return (
+          '<div class="prod-item' + (qty > 0 ? ' selected' : '') + '" id="item_' + p.id + '">' +
+            '<div class="prod-emoji">' + (p.emoji || '📦') + '</div>' +
+            '<div class="prod-info">' +
+              '<div class="prod-nombre">' + p.nombre + '</div>' +
+              '<div class="prod-precio">S/ ' + parseFloat(p.precio).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="qty-control">' +
+              '<button type="button" class="qty-btn" onclick="cambiarQty(' + p.id + ',-1)">−</button>' +
+              '<span class="qty-num" id="qty_' + p.id + '">' + qty + '</span>' +
+              '<button type="button" class="qty-btn plus" onclick="cambiarQty(' + p.id + ',1)">+</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    // ── CAMBIAR CANTIDAD ───────────────────────────────────────
+    function cambiarQty(id, delta){
+      var prod = todosProds.find(function(p){ return p.id === id; });
+      if(!prod) return;
+      var actual = carrito[id] ? carrito[id].qty : 0;
+      var nueva  = Math.max(0, actual + delta);
+      if(nueva === 0){ delete carrito[id]; }
+      else { carrito[id] = { prod: prod, qty: nueva }; }
+      var qtyEl = document.getElementById('qty_' + id);
+      var itemEl = document.getElementById('item_' + id);
+      if(qtyEl)  qtyEl.textContent = nueva;
+      if(itemEl) itemEl.classList.toggle('selected', nueva > 0);
+      actualizarCarrito();
+    }
+
+    // ── ACTUALIZAR CARRITO ─────────────────────────────────────
+    function actualizarCarrito(){
+      var keys  = Object.keys(carrito);
+      var total = 0;
+      var items = 0;
+      keys.forEach(function(k){
+        total += carrito[k].prod.precio * carrito[k].qty;
+        items += carrito[k].qty;
+      });
+      document.getElementById('carritoItemsTxt').textContent =
+        items + (items === 1 ? ' producto' : ' productos');
+      document.getElementById('carritoTotalTxt').textContent =
+        'S/ ' + total.toFixed(2);
+      document.getElementById('contadorItems').textContent =
+        keys.length + (keys.length === 1 ? ' seleccionado' : ' seleccionados');
+      document.getElementById('carritoBar').classList.toggle('show', items > 0);
+    }
+
+    // ── SELECCIONAR PAGO ───────────────────────────────────────
+    function selPago(el, nombre, detalle){
+      document.querySelectorAll('.pago-opcion').forEach(function(o){
+        o.classList.remove('selected');
+      });
+      el.classList.add('selected');
+      pagoActual = { nombre: nombre, detalle: detalle };
+    }
+
+    // ── CONFIRMAR PEDIDO ───────────────────────────────────────
+    function confirmarPedido(){
+      var keys = Object.keys(carrito);
+      if(keys.length === 0){
+        Swal.fire({
+          icon:'warning',
+          title:'Carrito vacío',
+          text:'Agrega al menos un producto antes de confirmar.',
+          confirmButtonColor:'#6C3FC5',
+          customClass:{ popup:'rounded-4' }
+        });
+        return;
+      }
+
+      var total   = 0;
+      var resHTML = '';
+      var resTxt  = '';
+
+      keys.forEach(function(k){
+        var item = carrito[k];
+        var sub  = item.prod.precio * item.qty;
+        total   += sub;
+
+        resHTML +=
+          '<div class="resumen-item">' +
+            '<div class="resumen-item-left">' +
+              '<div class="resumen-item-emoji">' + (item.prod.emoji || '📦') + '</div>' +
+              '<div>' +
+                '<div class="resumen-item-nombre">' + item.prod.nombre + '</div>' +
+                '<div class="resumen-item-qty">x' + item.qty + ' · S/ ' + parseFloat(item.prod.precio).toFixed(2) + ' c/u</div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="resumen-item-precio">S/ ' + sub.toFixed(2) + '</div>' +
+          '</div>';
+
+        resTxt += '• ' + item.qty + 'x ' + item.prod.nombre +
+                  ' = S/ ' + sub.toFixed(2) + '\n';
+      });
+
+      // Mostrar resumen
+      document.getElementById('resumenPedido').innerHTML  = resHTML;
+      document.getElementById('resumenTotal').textContent = 'S/ ' + total.toFixed(2);
+
+      // Datos de pago según método elegido
+      var datosPago = '';
+      if(pagoActual.nombre === 'Yape'){
+        datosPago =
+          '💜 <strong>Yape:</strong> ' + NEGOCIO.yape + '<br>' +
+          '👤 Titular: ' + NEGOCIO.titular;
+      } else if(pagoActual.nombre === 'Depósito BCP'){
+        datosPago =
+          '🏦 <strong>CCI:</strong> ' + NEGOCIO.cci + '<br>' +
+          '👤 Titular: ' + NEGOCIO.titular + '<br>' +
+          '🏛️ Banco: BCP';
+      } else if(pagoActual.nombre === 'Transferencia BCP'){
+        datosPago =
+          '💳 <strong>N° Cuenta:</strong> ' + NEGOCIO.cuenta + '<br>' +
+          '👤 Titular: ' + NEGOCIO.titular + '<br>' +
+          '🏛️ Banco: BCP';
+      } else {
+        datosPago = '💵 Pago en efectivo al recibir el pedido';
+      }
+
+      document.getElementById('datosPagoResumen').innerHTML = datosPago;
+
+      // Guardar para WhatsApp
+      window._pedidoTxt   = resTxt;
+      window._pedidoTotal = total;
+
+      // Ir a paso 2
+      document.getElementById('paso1').style.display = 'none';
+      document.getElementById('carritoBar').classList.remove('show');
+      document.getElementById('paso2').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ── ENVIAR POR WHATSAPP ────────────────────────────────────
+    function enviarWhatsApp(){
+      var cliente = document.getElementById('nombreCliente').value.trim() || 'Cliente';
+      var total   = window._pedidoTotal || 0;
+      var items   = window._pedidoTxt   || '';
+
+      var msg = '';
+      msg += '🛒 *NUEVO PEDIDO — ' + NEGOCIO.nombre + '*\n';
+      msg += '━━━━━━━━━━━━━━━━━━━━\n';
+      msg += '👤 Cliente: *' + cliente + '*\n\n';
+      msg += '📦 *Productos:*\n' + items + '\n';
+      msg += '━━━━━━━━━━━━━━━━━━━━\n';
+      msg += '💰 *TOTAL: S/ ' + total.toFixed(2) + '*\n\n';
+      msg += '💳 *Método de pago:* ' + pagoActual.nombre + '\n';
+
+      if(pagoActual.nombre === 'Yape'){
+        msg += '📱 Yapear a: *' + NEGOCIO.yape + '* (' + NEGOCIO.titular + ')\n';
+      } else if(pagoActual.nombre === 'Depósito BCP' || pagoActual.nombre === 'Transferencia BCP'){
+        msg += '🏦 CCI: *' + NEGOCIO.cci + '*\n';
+        msg += '👤 Titular: *' + NEGOCIO.titular + '*\n';
+      }
+
+      msg += '\n✅ _Por favor confirma disponibilidad y coordina la entrega._\n';
+      msg += '🏔️ _Pedido desde Mi Negocio Digital · Cusco, Perú_';
+
+      window.open(
+        'https://wa.me/' + NEGOCIO.wsp + '?text=' + encodeURIComponent(msg),
+        '_blank'
+      );
+    }
+
+    // ── NUEVO PEDIDO ───────────────────────────────────────────
+    function nuevoPedido(){
+      carrito = {};
+      document.getElementById('paso1').style.display = 'block';
+      document.getElementById('paso2').style.display = 'none';
+      document.getElementById('nombreCliente').value = '';
+      catActual = '';
+
+      // Recargar productos frescos desde la nube
+      var filtro = document.getElementById('catsFilter');
+      filtro.style.display = 'none';
+      filtro.innerHTML = '';
+      document.getElementById('listaProductos').innerHTML =
+        '<div class="loading-box">' +
+          '<div class="loading-spinner"></div>' +
+          '<p>Actualizando productos<br><strong style="color:var(--primary)">desde la nube ☁️</strong></p>' +
+        '</div>';
+
+      cargarProductosNube();
+      actualizarCarrito();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
